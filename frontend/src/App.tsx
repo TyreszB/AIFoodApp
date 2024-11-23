@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Button from "./components/Button";
 
 function App() {
@@ -10,6 +10,15 @@ function App() {
     if (fileInput?.files?.[0]) {
       const file = fileInput.files[0];
     }
+  };
+
+  // Function to handle the edit that sends the uploaded photo to the backend.
+  const handleEdit = async () => {
+    await useEffect(() => {
+      fetch("localhost");
+
+      return () => {};
+    }, []);
   };
 
   //  Handle change of image when you upload it to the frontend
@@ -38,7 +47,7 @@ function App() {
       )}
       <Button onClick={handleSubmit}>Upload Image</Button>
 
-      <Button onClick={() => {}}>Edit Image</Button>
+      <Button onClick={handleEdit}>Edit Image</Button>
     </div>
   );
 }
