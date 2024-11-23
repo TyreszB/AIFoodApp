@@ -1,12 +1,12 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from openai import OpenAI
+import openai
 import os
 
 app = FastAPI()
 
 # Added OPENAI to the server
-client = OpenAI()
+client = openai()
 
 # Grab API KEY from local enviroment (need to change to env file in future!!!)
 api_key = os.environ.get('OPENAI_API_KEY')
@@ -21,6 +21,20 @@ else:
 origins = [
     "*"
     ]
+
+# Generate image from OPENAI
+@app.post('api/edit-image')
+async def edit_image(image: UploadFile = File()):
+    image_data = await image.read()
+
+    response = openai.Image.creat_edit(
+        image = image_data,
+        **image_params
+    )
+    edited_image_url = response['data'][0]['url']
+    edited_image_data = request.get(edited_image_url).content
+
+    return StreamingResponse(BytesIO(edited_image_data), media_type="image/png")
 
 # Parameters for request to OPENAI to edit images (Need learn to add images to params for editing)
 image_params = {
@@ -44,3 +58,5 @@ app.add_middleware(
 @app.get("/")
 async def root():
     return {"message": "Hello from the server!"}
+
+
