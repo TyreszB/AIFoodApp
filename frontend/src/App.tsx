@@ -15,6 +15,8 @@ function App() {
           url: fileInput,
         }),
       });
+    } else {
+      throw new Error("SOmething went wrong, try again later!");
     }
   }
 
