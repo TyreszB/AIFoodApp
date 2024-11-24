@@ -13,13 +13,17 @@ function App() {
   };
 
   // Function to handle the edit that sends the uploaded photo to the backend.
-  const handleEdit = async () => {
-    await useEffect(() => {
-      fetch("localhost");
-
-      return () => {};
-    }, []);
-  };
+  async function handleEdit() {
+    await fetch("http://localhost:8000/api/edit-image", {
+      method: "POST",
+      headers: {
+        "Contnet-Type": "application/json",
+      },
+      body: JSON.stringify({
+        url: file,
+      }),
+    });
+  }
 
   //  Handle change of image when you upload it to the frontend
   interface FileInputEvent extends React.ChangeEvent<HTMLInputElement> {}
