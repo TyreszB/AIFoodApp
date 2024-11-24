@@ -4,19 +4,20 @@ import Button from "./components/Button";
 function App() {
   // Function to handle the edit that sends the uploaded photo to the backend.
   async function handleEdit() {
-    if (file) {
-      const fileInput = URL.createObjectURL(file);
-      await fetch("http://localhost:8000/api/edit-image", {
+    if (!file) {
+      throw new Error("Something went wrong, try again later!");
+    }
+
+    const formData = new FormData();
+    formData.append("image", file);
+
+    try {
+      const res = await fetch("http://localhost:8000/api/edit-image", {
         method: "POST",
-        headers: {
-          "Contnet-Type": "application/json",
-        },
-        body: JSON.stringify({
-          url: fileInput,
-        }),
+        body: formData,
       });
-    } else {
-      throw new Error("SOmething went wrong, try again later!");
+    } catch (error) {
+      throw new Error("Request couldn't be complete, please try again later!");
     }
   }
 

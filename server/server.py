@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from io import BytesIO
@@ -9,16 +9,16 @@ import os
 
 app = FastAPI()
 
-
-# Grab API KEY from local enviroment (need to change to env file in future!!!)
-
-openai.api_key = os.getenv("OPENAI_API_KEY")
-
 # Added OPENAI to the server
 client = openai
 
+# Grab API KEY from local enviroment (need to change to env file in future!!!)
 
-if openai.api_key:
+client.api_key = os.getenv("OPENAI_API_KEY")
+
+
+
+if client.api_key:
     print('API key found!')
 else:
     print('Error!')
@@ -47,10 +47,26 @@ image_params = {
 
 # Generate image from OPENAI
 @app.post('/api/edit-image')
-async def edit_image(request: Request):
-    data = await request.json()
+async def edit_image(request: Request, image: UploadFile = File(...)):
+     
+     image_data = await image.read()
+
+     res = client.images.edit(
+         image=image_data,
+         n=1,
+         size="1024x1024",
+         prompt="Edit and enhance this food image to look like a item for a resturant menu."
+     )
+
+     edited_image_url = res.get('data')[0]["url"]
+
+     print(edited_image_url)
+
+     
     
-    print(data)
+    
+    
+    
 
 
     
