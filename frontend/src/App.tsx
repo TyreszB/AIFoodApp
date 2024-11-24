@@ -2,27 +2,20 @@ import React, { useEffect, useState } from "react";
 import Button from "./components/Button";
 
 function App() {
-  // Need to reach the backend with a function that allows me to upload a photo.
-  const handleSubmit = (): void => {
-    const fileInput = document.getElementById(
-      "imageUpload"
-    ) as HTMLInputElement | null;
-    if (fileInput?.files?.[0]) {
-      const file = fileInput.files[0];
-    }
-  };
-
   // Function to handle the edit that sends the uploaded photo to the backend.
   async function handleEdit() {
-    await fetch("http://localhost:8000/api/edit-image", {
-      method: "POST",
-      headers: {
-        "Contnet-Type": "application/json",
-      },
-      body: JSON.stringify({
-        url: file,
-      }),
-    });
+    if (file) {
+      const fileInput = URL.createObjectURL(file);
+      await fetch("http://localhost:8000/api/edit-image", {
+        method: "POST",
+        headers: {
+          "Contnet-Type": "application/json",
+        },
+        body: JSON.stringify({
+          url: fileInput,
+        }),
+      });
+    }
   }
 
   //  Handle change of image when you upload it to the frontend
@@ -49,7 +42,6 @@ function App() {
       {file && (
         <img src={URL.createObjectURL(file)} alt={file.name} width={300} />
       )}
-      <Button onClick={handleSubmit}>Upload Image</Button>
 
       <Button onClick={handleEdit}>Edit Image</Button>
     </div>

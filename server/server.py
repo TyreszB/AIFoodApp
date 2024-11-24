@@ -1,4 +1,4 @@
-from fastapi import FastAPI, request
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from io import BytesIO
@@ -47,10 +47,13 @@ image_params = {
 
 # Generate image from OPENAI
 @app.post('/api/edit-image')
-async def edit_image():
+async def edit_image(request: Request):
     data = await request.json()
+    
+    print(data)
 
-    return data
+
+    
 
 
 
