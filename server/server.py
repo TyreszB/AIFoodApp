@@ -2,12 +2,15 @@ from fastapi import FastAPI, Request, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from io import BytesIO
+from dotenv import load_dotenv
 
 import openai
 import os
 
 
 app = FastAPI()
+
+load_dotenv()
 
 # Added OPENAI to the server
 client = openai
@@ -48,19 +51,30 @@ image_params = {
 # Generate image from OPENAI
 @app.post('/api/edit-image')
 async def edit_image(request: Request, image: UploadFile = File(...)):
-     
-     image_data = await image.read()
+    try:
+        image_data = await image.read()
 
-     res = client.images.edit(
-         image=image_data,
-         n=1,
-         size="1024x1024",
-         prompt="Edit and enhance this food image to look like a item for a resturant menu."
-     )
+        res = client.images.edit(
+            image=image_data,
+            n=1,
+            size="1024x1024",
+            prompt="Edit and enhance this food image to look like a item for a resturant menu."
+        )
 
-     edited_image_url = res.get('data')[0]["url"]
+        edited_image_url = res.get('data')[0]["url"]
 
-     print(edited_image_url)
+        print(edited_image_url)
+
+    except client.error.InvalidRequestError as e:
+        return {"error": "Invalid request. Please check your input and try again."}
+    except client.error.AuthenticationError:
+        return {"error": "Authentication failed. Check your API key."}
+    except client.error.RateLimitError:
+        return {"error": "Rate limit exceeded. Try again later."}
+    except client.error.OpenAIError as e:
+        if "billing_hard_limit_reached" in str(e):
+            return {"error": "Billing limit reached. Please update your OpenAI account billing settings."}
+        return {"error": "An unexpected error occurred: " + str(e)}
 
      
     
