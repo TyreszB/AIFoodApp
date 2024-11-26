@@ -64,7 +64,8 @@ async def edit_image(request: Request, image: UploadFile = File(...)):
         edited_image_url = res.get('data')[0]["url"]
 
         print(edited_image_url)
-
+        
+# Error handling for post request to OPENAI
     except client.error.InvalidRequestError as e:
         return {"error": "Invalid request. Please check your input and try again."}
     except client.error.AuthenticationError:
