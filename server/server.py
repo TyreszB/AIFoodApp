@@ -1,8 +1,10 @@
-from fastapi import FastAPI, Request, UploadFile, File
+from fastapi import FastAPI, Request, UploadFile, File, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
+import io
 from io import BytesIO
 from dotenv import load_dotenv
+from PIL import Image
 
 import openai
 import os
@@ -40,31 +42,47 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-# Parameters for request to OPENAI to edit images (Need learn to add images to params for editing)
-image_params = {
-    "n": 1,
-    "size": "1024x1024",
-    "prompt": "Edit and enhance this food image to look like a item for a resturant menu.",
 
-}
 
 # Generate image from OPENAI
 @app.post('/api/edit-image')
 async def edit_image(request: Request, image: UploadFile = File(...)):
+    
     try:
-        image_data = await image.read()
+        image_bytes = await image.read()
+
+        with Image.open(io.BytesIO(image_bytes)) as img:
+
+            if img.mode != "RGBA":
+                img = img.convert("RGBA")
+
+            
+            buffer = io.BytesIO()
+            img.save(buffer, format="PNG")
+            buffer.seek(0)
+            image_bytes = buffer.read()
+
+            if len(image_bytes) > 4 * 1024 * 1024:  # 4 MB
+                img.thumbnail((img.width // 2, img.height // 2))
+                buffer = io.BytesIO()
+                img.save(buffer, format="PNG")
+                buffer.seek(0)
+                image_bytes = buffer.read()
+
 
         res = client.images.edit(
-            image=image_data,
+            image=image_bytes,
             n=1,
-            size="1024x1024",
             prompt="Edit and enhance this food image to look like a item for a resturant menu."
         )
-
-        edited_image_url = res.get('data')[0]["url"]
+        
+        
+        edited_image_url = res
 
         print(edited_image_url)
+
         
+
 # Error handling for post request to OPENAI
     except client.error.InvalidRequestError as e:
         return {"error": "Invalid request. Please check your input and try again."}
