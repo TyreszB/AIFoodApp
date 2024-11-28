@@ -49,20 +49,27 @@ app.add_middleware(
 async def edit_image(request: Request, image: UploadFile = File(...)):
     
     try:
+
+        # Read the uploaded image from frontend
         image_bytes = await image.read()
 
-        with Image.open(io.BytesIO(image_bytes)) as img:
 
+        # Used io and Pillow plugin to process the image for OPENAI
+        with Image.open(io.BytesIO(image_bytes)) as img:
+            
+            # Converting the mpde of the image
             if img.mode != "RGBA":
                 img = img.convert("RGBA")
 
-            
+            # Converting the image if it's not a PNG
             buffer = io.BytesIO()
             img.save(buffer, format="PNG")
             buffer.seek(0)
             image_bytes = buffer.read()
 
-            if len(image_bytes) > 4 * 1024 * 1024:  # 4 MB
+
+            # Validation for length of the image to keep it under 4 MB
+            if len(image_bytes) > 4 * 1024 * 1024:  
                 img.thumbnail((img.width // 2, img.height // 2))
                 buffer = io.BytesIO()
                 img.save(buffer, format="PNG")
