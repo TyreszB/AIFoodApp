@@ -53,6 +53,8 @@ async def edit_image(request: Request, image: UploadFile = File(...)):
         # Read the uploaded image from frontend
         image_bytes = await image.read()
 
+        
+
 
         # Used io and Pillow plugin to process the image for OPENAI
         with Image.open(io.BytesIO(image_bytes)) as img:
@@ -76,15 +78,26 @@ async def edit_image(request: Request, image: UploadFile = File(...)):
                 buffer.seek(0)
                 image_bytes = buffer.read()
 
+        width, height = img.size
+
+        mask = Image.new('RGBA',(width, height), (0,0,0,0))
+
+        buffer2 = io.BytesIO()
+        mask.save(buffer2, format="PNG")
+        buffer2.seek(0)
+        mask_bytes = buffer2.read()
+
 
         res = client.images.edit(
             image=image_bytes,
             n=1,
-            prompt="Edit and enhance this food image to look like a item for a resturant menu."
+            mask=mask_bytes,
+            prompt="make this image blue, but keep the same image",
+          
         )
         
         
-        edited_image_url = res
+        edited_image_url = res.data[0].url
 
         print(edited_image_url)
 
