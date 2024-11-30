@@ -82,6 +82,9 @@ async def edit_image(request: Request, image: UploadFile = File(...)):
 
         mask = Image.new('RGBA',(width, height), (0,0,0,0))
 
+        if mask.mode != "RGBA":
+            mask.convert("RGBA")
+
         buffer2 = io.BytesIO()
         mask.save(buffer2, format="PNG")
         buffer2.seek(0)
@@ -92,7 +95,7 @@ async def edit_image(request: Request, image: UploadFile = File(...)):
             image=image_bytes,
             n=1,
             mask=mask_bytes,
-            prompt="make this image blue, but keep the same image",
+            prompt="Modify this image to have a cool, bluish color tone while keeping the original objects and structure intact..",
           
         )
         
