@@ -91,12 +91,9 @@ async def edit_image(request: Request, image: UploadFile = File(...)):
         mask_bytes = buffer2.read()
 
 
-        res = client.images.edit(
+        res = client.images.create_variation(
             image=image_bytes,
-            n=1,
-            mask=mask_bytes,
-            prompt="Modify this image to have a cool, bluish color tone while keeping the original objects and structure intact..",
-          
+            n=1,          
         )
         
         
