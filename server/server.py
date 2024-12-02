@@ -70,7 +70,7 @@ async def edit_image(request: Request, image: UploadFile = File(...)):
             image_bytes = buffer.read()
 
 
-            # Validation for length of the image to keep it under 4 MB
+            # Validation for length of the image to keep it over 4 MB
             if len(image_bytes) > 4 * 1024 * 1024:  
                 img.thumbnail((img.width // 2, img.height // 2))
                 buffer = io.BytesIO()
@@ -78,26 +78,25 @@ async def edit_image(request: Request, image: UploadFile = File(...)):
                 buffer.seek(0)
                 image_bytes = buffer.read()
 
-        width, height = img.size
+        # width, height = img.size
 
-        mask = Image.new('RGBA',(width, height), (0,0,0,0))
+        # mask = Image.new('RGBA',(width, height), (0,0,0,0))
 
-        if mask.mode != "RGBA":
-            mask.convert("RGBA")
+        # if mask.mode != "RGBA":
+        #     mask.convert("RGBA")
 
-        buffer2 = io.BytesIO()
-        mask.save(buffer2, format="PNG")
-        buffer2.seek(0)
-        mask_bytes = buffer2.read()
+        # buffer2 = io.BytesIO()
+        # mask.save(buffer2, format="PNG")
+        # buffer2.seek(0)
+        # mask_bytes = buffer2.read()
 
 
-        res = client.images.create_variation(
-            image=image_bytes,
-            n=1,          
+        res = client.images.generate(
+            prompt="a cute baby sea otter"
         )
         
         
-        edited_image_url = res.data[0].url
+        edited_image_url = res.data
 
         print(edited_image_url)
 
